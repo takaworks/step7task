@@ -135,7 +135,7 @@ class TestProductsController extends Controller {
             ->withErrors($validator)
             ->withInput();
         } else {
-        //バリデーションエラー有り
+        //バリデーションエラー無し
             $file = $request->file('imgFeditimage');
             
             $img_path = $hoge->getimgDB($request->txtFeditproductid);
