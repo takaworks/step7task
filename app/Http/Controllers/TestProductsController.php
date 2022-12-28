@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use \App\Models\TestProducts;
 use BadFunctionCallException;
+use Illuminate\Support\Facades\DB;
 
 class TestProductsController extends Controller {
 
@@ -68,6 +69,7 @@ class TestProductsController extends Controller {
     /////////////////////////////////
     public function getCompanylist() {
         $hoge = new TestProducts();
+        
         $company_list = $hoge -> getCompanyListDB();
         return $company_list;
     }
@@ -105,9 +107,22 @@ class TestProductsController extends Controller {
                 $file->storeAs('', $file_name);
 
                 $file_name = 'http://localhost/step7task/storage/app/'.$file_name;
-                $hoge -> insertProductListDB($request, $file_name);
+
+                DB::beginTransaction();
+                try {
+                    $hoge -> insertProductListDB($request, $file_name);
+                    DB::commit();
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                }
             } else {
-                $hoge -> insertProductListDB($request, "http://localhost/step7task/storage/app/noimage.png");
+                DB::beginTransaction();
+                try {
+                    $hoge -> insertProductListDB($request, "http://localhost/step7task/storage/app/noimage.png");
+                    DB::commit();
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                }
             }
             
             return redirect()->route('admin.addpage.show')
@@ -146,9 +161,22 @@ class TestProductsController extends Controller {
                 $file->storeAs('', $file_name);
 
                 $file_name = 'http://localhost/step7task/storage/app/'.$file_name;
-                $hoge -> editProductDB($request, $file_name);
+
+                DB::beginTransaction();
+                try {
+                    $hoge -> editProductDB($request, $file_name);
+                    DB::commit();
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                }
             } else {
-                $hoge -> editProductDB($request, $img_path->img_path);
+                DB::beginTransaction();
+                try {
+                    $hoge -> editProductDB($request, $img_path->img_path);
+                    DB::commit();
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                }
             }
 
             return redirect()->route('admin.edit',compact('id'))->with([
@@ -163,7 +191,14 @@ class TestProductsController extends Controller {
     public function delete(Request $request) {
         $hoge = new TestProducts();
         $id = $request->id;
-        $hoge -> deteleDB($id);
+        
+        DB::beginTransaction();
+        try {
+            $hoge -> deteleDB($id);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+        }
 
         return redirect('/home');
     }
